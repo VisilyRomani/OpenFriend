@@ -1,0 +1,2 @@
+# OpenFriend
+whisper -> llama -> piper
