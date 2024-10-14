@@ -19,6 +19,8 @@ lib64/
 parts/
 sdist/
 var/
+piper-win/
+voices/
 wheels/
 share/python-wheels/
 *.egg-info/
