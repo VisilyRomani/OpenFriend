@@ -3,6 +3,13 @@ import tts
 import multiprocessing
 import speech_recognition as sr
 
+'''
+TODO:
+    - Skip next item in queue
+    - Show amount of items in queue 
+    - Skip audio
+'''
+
 
 modelfile = '''
 FROM llama3.2
@@ -39,13 +46,14 @@ def OllamaResponse(queue):
 
     messages = []
     
-    with open('prompt.txt', 'r') as file:
-        prompt = file.read()
-        messages.append({'role':'system','content':prompt})
-        file.close()
+    # with open('prompt.txt', 'r') as file:
+    #     prompt = file.read()
+    #     messages.append({'role':'system','content':prompt})
+    #     file.close()
         
     while True:
         item = queue.get()
+        print(queue.qsize())
         if(item):
             print(item)
             messages.append({'role':'user', 'content':item})
