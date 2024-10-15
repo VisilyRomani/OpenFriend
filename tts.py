@@ -1,6 +1,9 @@
 import asyncio
 import numpy as np
 import sounddevice as sd
+from pedalboard import Compressor, HighpassFilter, Invert, LowpassFilter, NoiseGate, Pedalboard, PitchShift
+
+from pedalboard.io import AudioStream
 
 # Voicemeeter AUX Input
 DEFAULT_SOUND_DEVICE = 18
@@ -9,6 +12,7 @@ def playback_tts(text,volume=1):
     audio_result = asyncio.run(generate_tts_audio(text))
     audio_playback(audio_result,volume)
 
+
 async def async_playback_tts(text, volume=1):
     audio_result = await generate_tts_audio(text)
     audio_playback(audio_result, volume)
@@ -16,10 +20,17 @@ async def async_playback_tts(text, volume=1):
 
 def audio_playback(audio, volume = 1):
     sd.default.device = (None, DEFAULT_SOUND_DEVICE)
+    # audio_data = np.frombuffer(audio, dtype=np.int16)
+    # # volume adjust
     audio_data = np.frombuffer(audio, dtype=np.int16)
-    # volume adjust
     audio_data = (audio_data * volume).astype(np.int16)
-    sd.play(audio_data, 22050, blocking=True)
+    float_data = audio_data.astype(np.float32)/ 32768.0
+    board = Pedalboard([
+        PitchShift(semitones=1),
+        ])
+    
+    processed_audio = board(float_data, 22050)
+    sd.play(processed_audio, 22050, blocking=True)
     sd.wait()
 
 
