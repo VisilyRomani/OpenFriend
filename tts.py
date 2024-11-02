@@ -1,4 +1,5 @@
 import asyncio
+import time
 import numpy as np
 import sounddevice as sd
 from pedalboard import Compressor, HighpassFilter, Invert, LowpassFilter, NoiseGate, Pedalboard, PitchShift
@@ -9,7 +10,10 @@ from pedalboard.io import AudioStream
 DEFAULT_SOUND_DEVICE = 18
 
 def playback_tts(text,volume=1):
+    start = time.time()
     audio_result = asyncio.run(generate_tts_audio(text))
+    end = time.time()
+    print(f'TTS Elapsed:{end-start}')
     audio_playback(audio_result,volume)
 
 
@@ -19,18 +23,17 @@ async def async_playback_tts(text, volume=1):
 
 
 def audio_playback(audio, volume = 1):
-    sd.default.device = (None, DEFAULT_SOUND_DEVICE)
-    # audio_data = np.frombuffer(audio, dtype=np.int16)
+    # sd.default.device = (None, DEFAULT_SOUND_DEVICE)
     # # volume adjust
     audio_data = np.frombuffer(audio, dtype=np.int16)
     audio_data = (audio_data * volume).astype(np.int16)
     float_data = audio_data.astype(np.float32)/ 32768.0
     board = Pedalboard([
-        PitchShift(semitones=1),
+        PitchShift(semitones=-2),
         ])
     
     processed_audio = board(float_data, 22050)
-    sd.play(processed_audio, 22050, blocking=True)
+    sd.play(processed_audio, 25000, blocking=True)
     sd.wait()
 
 
@@ -39,7 +42,8 @@ async def generate_tts_audio(text):
 
     piper_cmd = [
         './piper-win/piper.exe',
-        '-m', './voices/north/en_GB-alba-medium.onnx',
+        '-m', './voices/cori/en_GB-cori-high.onnx',
+        '--cuda',
         '--output-raw',
     ]
 
